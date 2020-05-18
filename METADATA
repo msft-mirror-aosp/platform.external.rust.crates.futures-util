@@ -1,7 +1,5 @@
 name: "futures-util"
-description:
-    "Common utilities and extension traits for the futures-rs library."
-
+description: "Common utilities and extension traits for the futures-rs library."
 third_party {
   url {
     type: HOMEPAGE
@@ -11,7 +9,11 @@ third_party {
     type: GIT
     value: "https://github.com/rust-lang/futures-rs"
   }
-  version: "0.3.4"
-  last_upgrade_date { year: 2020 month: 3 day: 17 }
+  version: "0.3.5"
   license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 5
+    day: 8
+  }
 }
