@@ -6,8 +6,8 @@ third_party {
     value: "https://crates.io/crates/futures-util"
   }
   url {
-    type: GIT
-    value: "https://github.com/rust-lang/futures-rs"
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/futures-util/futures-util-0.3.5.crate"
   }
   version: "0.3.5"
   license_type: NOTICE
