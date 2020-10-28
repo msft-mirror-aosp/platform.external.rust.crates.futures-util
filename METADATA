@@ -7,13 +7,13 @@ third_party {
   }
   url {
     type: ARCHIVE
-    value: "https://static.crates.io/crates/futures-util/futures-util-0.3.5.crate"
+    value: "https://static.crates.io/crates/futures-util/futures-util-0.3.7.crate"
   }
-  version: "0.3.5"
+  version: "0.3.7"
   license_type: NOTICE
   last_upgrade_date {
     year: 2020
-    month: 5
-    day: 8
+    month: 10
+    day: 25
   }
 }
