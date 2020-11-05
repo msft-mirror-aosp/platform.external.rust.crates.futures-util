@@ -2,8 +2,8 @@
 {
   "presubmit": [
     {
-      "name": "futures-util_host_test_src_lib",
-      "host": true
+      "host": true,
+      "name": "futures-util_host_test_src_lib"
     },
     {
       "name": "futures-util_device_test_src_lib"
