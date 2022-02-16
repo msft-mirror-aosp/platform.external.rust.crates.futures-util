@@ -3,8 +3,8 @@
 //! This module contains a number of functions and combinators for working
 //! with `async`/`await` code.
 
-use futures_core::future::{FusedFuture, Future};
-use futures_core::stream::{FusedStream, Stream};
+use futures_core::future::{Future, FusedFuture};
+use futures_core::stream::{Stream, FusedStream};
 
 #[macro_use]
 mod poll;
@@ -29,13 +29,6 @@ mod select_mod;
 #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/64762
 #[cfg(feature = "async-await-macro")]
 pub use self::select_mod::*;
-
-// Primary export is a macro
-#[cfg(feature = "async-await-macro")]
-mod stream_select_mod;
-#[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/64762
-#[cfg(feature = "async-await-macro")]
-pub use self::stream_select_mod::*;
 
 #[cfg(feature = "std")]
 #[cfg(feature = "async-await-macro")]
