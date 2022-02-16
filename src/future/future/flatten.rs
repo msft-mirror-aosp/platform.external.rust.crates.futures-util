@@ -2,9 +2,9 @@ use core::pin::Pin;
 use futures_core::future::{FusedFuture, Future};
 use futures_core::ready;
 use futures_core::stream::{FusedStream, Stream};
-use futures_core::task::{Context, Poll};
 #[cfg(feature = "sink")]
 use futures_sink::Sink;
+use futures_core::task::{Context, Poll};
 use pin_project_lite::pin_project;
 
 pin_project! {
@@ -24,9 +24,8 @@ impl<Fut1, Fut2> Flatten<Fut1, Fut2> {
 }
 
 impl<Fut> FusedFuture for Flatten<Fut, Fut::Output>
-where
-    Fut: Future,
-    Fut::Output: Future,
+    where Fut: Future,
+          Fut::Output: Future,
 {
     fn is_terminated(&self) -> bool {
         match self {
@@ -37,9 +36,8 @@ where
 }
 
 impl<Fut> Future for Flatten<Fut, Fut::Output>
-where
-    Fut: Future,
-    Fut::Output: Future,
+    where Fut: Future,
+          Fut::Output: Future,
 {
     type Output = <Fut::Output as Future>::Output;
 
@@ -49,12 +47,12 @@ where
                 FlattenProj::First { f } => {
                     let f = ready!(f.poll(cx));
                     self.set(Self::Second { f });
-                }
+                },
                 FlattenProj::Second { f } => {
                     let output = ready!(f.poll(cx));
                     self.set(Self::Empty);
                     break output;
-                }
+                },
                 FlattenProj::Empty => panic!("Flatten polled after completion"),
             }
         })
@@ -62,9 +60,8 @@ where
 }
 
 impl<Fut> FusedStream for Flatten<Fut, Fut::Output>
-where
-    Fut: Future,
-    Fut::Output: Stream,
+    where Fut: Future,
+          Fut::Output: Stream,
 {
     fn is_terminated(&self) -> bool {
         match self {
@@ -75,31 +72,31 @@ where
 }
 
 impl<Fut> Stream for Flatten<Fut, Fut::Output>
-where
-    Fut: Future,
-    Fut::Output: Stream,
+    where Fut: Future,
+          Fut::Output: Stream,
 {
     type Item = <Fut::Output as Stream>::Item;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Poll::Ready(loop {
             match self.as_mut().project() {
-                FlattenProj::First { f } => {
+                FlattenProj::First { f }  => {
                     let f = ready!(f.poll(cx));
                     self.set(Self::Second { f });
-                }
+                },
                 FlattenProj::Second { f } => {
                     let output = ready!(f.poll_next(cx));
                     if output.is_none() {
                         self.set(Self::Empty);
                     }
                     break output;
-                }
+                },
                 FlattenProj::Empty => break None,
             }
         })
     }
 }
+
 
 #[cfg(feature = "sink")]
 impl<Fut, Item> Sink<Item> for Flatten<Fut, Fut::Output>
@@ -109,16 +106,19 @@ where
 {
     type Error = <Fut::Output as Sink<Item>>::Error;
 
-    fn poll_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(loop {
             match self.as_mut().project() {
                 FlattenProj::First { f } => {
                     let f = ready!(f.poll(cx));
                     self.set(Self::Second { f });
-                }
+                },
                 FlattenProj::Second { f } => {
                     break ready!(f.poll_ready(cx));
-                }
+                },
                 FlattenProj::Empty => panic!("poll_ready called after eof"),
             }
         })
@@ -140,7 +140,10 @@ where
         }
     }
 
-    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_close(
+        mut self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Self::Error>> {
         let res = match self.as_mut().project() {
             FlattenProj::Second { f } => f.poll_close(cx),
             _ => Poll::Ready(Ok(())),
