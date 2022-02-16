@@ -1,4 +1,4 @@
-use crate::stream::{Fuse, StreamExt};
+use crate::stream::{StreamExt, Fuse};
 use core::cmp;
 use core::pin::Pin;
 use futures_core::stream::{FusedStream, Stream};
@@ -21,7 +21,12 @@ pin_project! {
 
 impl<St1: Stream, St2: Stream> Zip<St1, St2> {
     pub(super) fn new(stream1: St1, stream2: St2) -> Self {
-        Self { stream1: stream1.fuse(), stream2: stream2.fuse(), queued1: None, queued2: None }
+        Self {
+            stream1: stream1.fuse(),
+            stream2: stream2.fuse(),
+            queued1: None,
+            queued2: None,
+        }
     }
 
     /// Acquires a reference to the underlying streams that this combinator is
@@ -59,9 +64,7 @@ impl<St1: Stream, St2: Stream> Zip<St1, St2> {
 }
 
 impl<St1, St2> FusedStream for Zip<St1, St2>
-where
-    St1: Stream,
-    St2: Stream,
+    where St1: Stream, St2: Stream,
 {
     fn is_terminated(&self) -> bool {
         self.stream1.is_terminated() && self.stream2.is_terminated()
@@ -69,13 +72,14 @@ where
 }
 
 impl<St1, St2> Stream for Zip<St1, St2>
-where
-    St1: Stream,
-    St2: Stream,
+    where St1: Stream, St2: Stream
 {
     type Item = (St1::Item, St2::Item);
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    fn poll_next(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Option<Self::Item>> {
         let mut this = self.project();
 
         if this.queued1.is_none() {
@@ -120,7 +124,7 @@ where
             }
             (Some(x), None) => x.checked_add(queued1_len),
             (None, Some(y)) => y.checked_add(queued2_len),
-            (None, None) => None,
+            (None, None) => None
         };
 
         (lower, upper)
