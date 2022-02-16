@@ -5,21 +5,18 @@
 
 #[cfg(feature = "compat")]
 use crate::compat::Compat;
-use crate::fns::{
-    inspect_err_fn, inspect_ok_fn, into_fn, map_err_fn, map_ok_fn, InspectErrFn, InspectOkFn,
-    IntoFn, MapErrFn, MapOkFn,
-};
-use crate::future::assert_future;
-use crate::stream::assert_stream;
-use crate::stream::{Inspect, Map};
-#[cfg(feature = "alloc")]
-use alloc::vec::Vec;
 use core::pin::Pin;
 use futures_core::{
     future::{Future, TryFuture},
     stream::TryStream,
     task::{Context, Poll},
 };
+use crate::fns::{
+    InspectOkFn, inspect_ok_fn, InspectErrFn, inspect_err_fn, MapErrFn, map_err_fn, IntoFn, into_fn, MapOkFn, map_ok_fn,
+};
+use crate::future::assert_future;
+use crate::stream::{Map, Inspect};
+use crate::stream::assert_stream;
 
 mod and_then;
 #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
@@ -96,12 +93,6 @@ mod try_concat;
 #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
 pub use self::try_concat::TryConcat;
 
-#[cfg(feature = "alloc")]
-mod try_chunks;
-#[cfg(feature = "alloc")]
-#[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
-pub use self::try_chunks::{TryChunks, TryChunksError};
-
 mod try_fold;
 #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
 pub use self::try_fold::TryFold;
@@ -118,29 +109,25 @@ mod try_take_while;
 #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
 pub use self::try_take_while::TryTakeWhile;
 
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-mod try_buffer_unordered;
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-#[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
-pub use self::try_buffer_unordered::TryBufferUnordered;
+cfg_target_has_atomic! {
+    #[cfg(feature = "alloc")]
+    mod try_buffer_unordered;
+    #[cfg(feature = "alloc")]
+    #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
+    pub use self::try_buffer_unordered::TryBufferUnordered;
 
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-mod try_buffered;
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-#[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
-pub use self::try_buffered::TryBuffered;
+    #[cfg(feature = "alloc")]
+    mod try_buffered;
+    #[cfg(feature = "alloc")]
+    #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
+    pub use self::try_buffered::TryBuffered;
 
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-mod try_for_each_concurrent;
-#[cfg(not(futures_no_atomic_cas))]
-#[cfg(feature = "alloc")]
-#[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
-pub use self::try_for_each_concurrent::TryForEachConcurrent;
+    #[cfg(feature = "alloc")]
+    mod try_for_each_concurrent;
+    #[cfg(feature = "alloc")]
+    #[allow(unreachable_pub)] // https://github.com/rust-lang/rust/issues/57411
+    pub use self::try_for_each_concurrent::TryForEachConcurrent;
+}
 
 #[cfg(feature = "io")]
 #[cfg(feature = "std")]
@@ -528,7 +515,7 @@ pub trait TryStreamExt: TryStream {
     /// assert_eq!(Err(oneshot::Canceled), fut.await);
     /// # })
     /// ```
-    #[cfg(not(futures_no_atomic_cas))]
+    #[cfg_attr(feature = "cfg-target-has-atomic", cfg(target_has_atomic = "ptr"))]
     #[cfg(feature = "alloc")]
     fn try_for_each_concurrent<Fut, F>(
         self,
@@ -582,53 +569,6 @@ pub trait TryStreamExt: TryStream {
         Self: Sized,
     {
         assert_future::<Result<C, Self::Error>, _>(TryCollect::new(self))
-    }
-
-    /// An adaptor for chunking up successful items of the stream inside a vector.
-    ///
-    /// This combinator will attempt to pull successful items from this stream and buffer
-    /// them into a local vector. At most `capacity` items will get buffered
-    /// before they're yielded from the returned stream.
-    ///
-    /// Note that the vectors returned from this iterator may not always have
-    /// `capacity` elements. If the underlying stream ended and only a partial
-    /// vector was created, it'll be returned. Additionally if an error happens
-    /// from the underlying stream then the currently buffered items will be
-    /// yielded.
-    ///
-    /// This method is only available when the `std` or `alloc` feature of this
-    /// library is activated, and it is activated by default.
-    ///
-    /// This function is similar to
-    /// [`StreamExt::chunks`](crate::stream::StreamExt::chunks) but exits
-    /// early if an error occurs.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # futures::executor::block_on(async {
-    /// use futures::stream::{self, TryChunksError, TryStreamExt};
-    ///
-    /// let stream = stream::iter(vec![Ok::<i32, i32>(1), Ok(2), Ok(3), Err(4), Ok(5), Ok(6)]);
-    /// let mut stream = stream.try_chunks(2);
-    ///
-    /// assert_eq!(stream.try_next().await, Ok(Some(vec![1, 2])));
-    /// assert_eq!(stream.try_next().await, Err(TryChunksError(vec![3], 4)));
-    /// assert_eq!(stream.try_next().await, Ok(Some(vec![5, 6])));
-    /// # })
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// This method will panic if `capacity` is zero.
-    #[cfg(feature = "alloc")]
-    fn try_chunks(self, capacity: usize) -> TryChunks<Self>
-    where
-        Self: Sized,
-    {
-        assert_stream::<Result<Vec<Self::Ok>, TryChunksError<Self::Ok, Self::Error>>, _>(
-            TryChunks::new(self, capacity),
-        )
     }
 
     /// Attempt to filter the values produced by this stream according to the
@@ -896,7 +836,7 @@ pub trait TryStreamExt: TryStream {
     /// assert_eq!(buffered.next().await, Some(Err("error in the stream")));
     /// # Ok::<(), Box<dyn std::error::Error>>(()) }).unwrap();
     /// ```
-    #[cfg(not(futures_no_atomic_cas))]
+    #[cfg_attr(feature = "cfg-target-has-atomic", cfg(target_has_atomic = "ptr"))]
     #[cfg(feature = "alloc")]
     fn try_buffer_unordered(self, n: usize) -> TryBufferUnordered<Self>
     where
@@ -972,16 +912,14 @@ pub trait TryStreamExt: TryStream {
     /// assert_eq!(buffered.next().await, Some(Err("error in the stream")));
     /// # Ok::<(), Box<dyn std::error::Error>>(()) }).unwrap();
     /// ```
-    #[cfg(not(futures_no_atomic_cas))]
+    #[cfg_attr(feature = "cfg-target-has-atomic", cfg(target_has_atomic = "ptr"))]
     #[cfg(feature = "alloc")]
     fn try_buffered(self, n: usize) -> TryBuffered<Self>
     where
         Self::Ok: TryFuture<Error = Self::Error>,
         Self: Sized,
     {
-        assert_stream::<Result<<Self::Ok as TryFuture>::Ok, Self::Error>, _>(TryBuffered::new(
-            self, n,
-        ))
+        assert_stream::<Result<<Self::Ok as TryFuture>::Ok, Self::Error>, _>(TryBuffered::new(self, n))
     }
 
     // TODO: false positive warning from rustdoc. Verify once #43466 settles
