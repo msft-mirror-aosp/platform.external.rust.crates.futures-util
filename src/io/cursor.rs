@@ -43,7 +43,9 @@ impl<T> Cursor<T> {
     /// # force_inference(&buff);
     /// ```
     pub fn new(inner: T) -> Self {
-        Self { inner: io::Cursor::new(inner) }
+        Self {
+            inner: io::Cursor::new(inner),
+        }
     }
 
     /// Consumes this cursor, returning the underlying value.
@@ -197,19 +199,15 @@ where
 
 macro_rules! delegate_async_write_to_stdio {
     () => {
-        fn poll_write(
-            mut self: Pin<&mut Self>,
-            _: &mut Context<'_>,
-            buf: &[u8],
-        ) -> Poll<io::Result<usize>> {
+        fn poll_write(mut self: Pin<&mut Self>, _: &mut Context<'_>, buf: &[u8])
+            -> Poll<io::Result<usize>>
+        {
             Poll::Ready(io::Write::write(&mut self.inner, buf))
         }
 
-        fn poll_write_vectored(
-            mut self: Pin<&mut Self>,
-            _: &mut Context<'_>,
-            bufs: &[IoSlice<'_>],
-        ) -> Poll<io::Result<usize>> {
+        fn poll_write_vectored(mut self: Pin<&mut Self>, _: &mut Context<'_>, bufs: &[IoSlice<'_>])
+            -> Poll<io::Result<usize>>
+        {
             Poll::Ready(io::Write::write_vectored(&mut self.inner, bufs))
         }
 
@@ -220,7 +218,7 @@ macro_rules! delegate_async_write_to_stdio {
         fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
             self.poll_flush(cx)
         }
-    };
+    }
 }
 
 impl AsyncWrite for Cursor<&mut [u8]> {
