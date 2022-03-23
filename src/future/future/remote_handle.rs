@@ -1,23 +1,23 @@
 use {
     crate::future::{CatchUnwind, FutureExt},
-    futures_channel::oneshot::{self, Receiver, Sender},
+    futures_channel::oneshot::{self, Sender, Receiver},
     futures_core::{
         future::Future,
-        ready,
         task::{Context, Poll},
+        ready,
     },
-    pin_project_lite::pin_project,
     std::{
         any::Any,
         fmt,
         panic::{self, AssertUnwindSafe},
         pin::Pin,
         sync::{
-            atomic::{AtomicBool, Ordering},
             Arc,
+            atomic::{AtomicBool, Ordering},
         },
         thread,
     },
+    pin_project_lite::pin_project,
 };
 
 /// The handle to a remote future returned by
@@ -36,7 +36,7 @@ use {
 /// must be careful with regard to unwind safety because the thread in which the future
 /// is polled will keep running after the panic and the thread running the [RemoteHandle]
 /// will unwind.
-#[must_use = "dropping a remote handle cancels the underlying future"]
+#[must_use = "futures do nothing unless you `.await` or poll them"]
 #[derive(Debug)]
 #[cfg_attr(docsrs, doc(cfg(feature = "channel")))]
 pub struct RemoteHandle<T> {
@@ -85,7 +85,9 @@ pin_project! {
 
 impl<Fut: Future + fmt::Debug> fmt::Debug for Remote<Fut> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("Remote").field(&self.future).finish()
+        f.debug_tuple("Remote")
+            .field(&self.future)
+            .finish()
     }
 }
 
