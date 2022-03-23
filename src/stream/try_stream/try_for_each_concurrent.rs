@@ -1,8 +1,8 @@
 use crate::stream::{FuturesUnordered, StreamExt};
 use core::fmt;
 use core::mem;
-use core::num::NonZeroUsize;
 use core::pin::Pin;
+use core::num::NonZeroUsize;
 use futures_core::future::{FusedFuture, Future};
 use futures_core::stream::TryStream;
 use futures_core::task::{Context, Poll};
@@ -37,10 +37,9 @@ where
 }
 
 impl<St, Fut, F> FusedFuture for TryForEachConcurrent<St, Fut, F>
-where
-    St: TryStream,
-    F: FnMut(St::Ok) -> Fut,
-    Fut: Future<Output = Result<(), St::Error>>,
+    where St: TryStream,
+          F: FnMut(St::Ok) -> Fut,
+          Fut: Future<Output = Result<(), St::Error>>,
 {
     fn is_terminated(&self) -> bool {
         self.stream.is_none() && self.futures.is_empty()
@@ -48,10 +47,9 @@ where
 }
 
 impl<St, Fut, F> TryForEachConcurrent<St, Fut, F>
-where
-    St: TryStream,
-    F: FnMut(St::Ok) -> Fut,
-    Fut: Future<Output = Result<(), St::Error>>,
+where St: TryStream,
+      F: FnMut(St::Ok) -> Fut,
+      Fut: Future<Output = Result<(), St::Error>>,
 {
     pub(super) fn new(stream: St, limit: Option<usize>, f: F) -> Self {
         Self {
@@ -65,10 +63,9 @@ where
 }
 
 impl<St, Fut, F> Future for TryForEachConcurrent<St, Fut, F>
-where
-    St: TryStream,
-    F: FnMut(St::Ok) -> Fut,
-    Fut: Future<Output = Result<(), St::Error>>,
+    where St: TryStream,
+          F: FnMut(St::Ok) -> Fut,
+          Fut: Future<Output = Result<(), St::Error>>,
 {
     type Output = Result<(), St::Error>;
 
@@ -88,7 +85,7 @@ where
                     Poll::Ready(Some(Ok(elem))) => {
                         made_progress_this_iter = true;
                         Some(elem)
-                    }
+                    },
                     Poll::Ready(None) => {
                         this.stream.set(None);
                         None
@@ -112,9 +109,9 @@ where
                 Poll::Ready(Some(Ok(()))) => made_progress_this_iter = true,
                 Poll::Ready(None) => {
                     if this.stream.is_none() {
-                        return Poll::Ready(Ok(()));
+                        return Poll::Ready(Ok(()))
                     }
-                }
+                },
                 Poll::Pending => {}
                 Poll::Ready(Some(Err(e))) => {
                     // Empty the stream and futures so that we know
