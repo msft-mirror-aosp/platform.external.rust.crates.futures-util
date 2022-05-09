@@ -42,7 +42,7 @@ rust_test {
     host_supported: true,
     crate_name: "futures_util",
     cargo_env_compat: true,
-    cargo_pkg_version: "0.3.17",
+    cargo_pkg_version: "0.3.21",
     srcs: ["src/lib.rs"],
     test_suites: ["general-tests"],
     auto_gen_config: true,
@@ -62,13 +62,10 @@ rust_test {
         "futures-sink",
         "io",
         "memchr",
-        "proc-macro-hack",
-        "proc-macro-nested",
         "sink",
         "slab",
         "std",
     ],
-    cfgs: ["fn_like_proc_macro"],
     rustlibs: [
         "libfutures_channel",
         "libfutures_core",
@@ -78,14 +75,10 @@ rust_test {
         "libmemchr",
         "libpin_project_lite",
         "libpin_utils",
-        "libproc_macro_nested",
         "libslab",
         "libtokio",
     ],
-    proc_macros: [
-        "libfutures_macro",
-        "libproc_macro_hack",
-    ],
+    proc_macros: ["libfutures_macro"],
 }
 
 rust_library {
@@ -93,7 +86,7 @@ rust_library {
     host_supported: true,
     crate_name: "futures_util",
     cargo_env_compat: true,
-    cargo_pkg_version: "0.3.17",
+    cargo_pkg_version: "0.3.21",
     srcs: ["src/lib.rs"],
     edition: "2018",
     features: [
@@ -108,13 +101,10 @@ rust_library {
         "futures-sink",
         "io",
         "memchr",
-        "proc-macro-hack",
-        "proc-macro-nested",
         "sink",
         "slab",
         "std",
     ],
-    cfgs: ["fn_like_proc_macro"],
     rustlibs: [
         "libfutures_channel",
         "libfutures_core",
@@ -124,13 +114,9 @@ rust_library {
         "libmemchr",
         "libpin_project_lite",
         "libpin_utils",
-        "libproc_macro_nested",
         "libslab",
     ],
-    proc_macros: [
-        "libfutures_macro",
-        "libproc_macro_hack",
-    ],
+    proc_macros: ["libfutures_macro"],
     apex_available: [
         "//apex_available:platform",
         "com.android.bluetooth",
