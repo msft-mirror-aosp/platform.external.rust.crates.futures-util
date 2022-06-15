@@ -11,23 +11,6 @@
       "path": "external/rust/crates/tokio-test"
     }
   ],
-  "postsubmit": [
-    {
-      "name": "ZipFuseTest"
-    },
-    {
-      "name": "authfs_device_test_src_lib"
-    },
-    {
-      "name": "doh_unit_test"
-    },
-    {
-      "name": "futures-util_test_src_lib"
-    },
-    {
-      "name": "virtualizationservice_device_test"
-    }
-  ],
   "presubmit": [
     {
       "name": "ZipFuseTest"
