@@ -119,7 +119,7 @@ rust_library {
     proc_macros: ["libfutures_macro"],
     apex_available: [
         "//apex_available:platform",
-        "com.android.bluetooth",
+        "com.android.btservices",
         "com.android.resolv",
         "com.android.virt",
     ],
