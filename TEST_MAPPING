@@ -5,6 +5,18 @@
       "path": "external/rust/crates/anyhow"
     },
     {
+      "path": "external/rust/crates/async-stream"
+    },
+    {
+      "path": "external/rust/crates/futures-channel"
+    },
+    {
+      "path": "external/rust/crates/futures-executor"
+    },
+    {
+      "path": "external/rust/crates/futures-test"
+    },
+    {
       "path": "external/rust/crates/tokio"
     },
     {
@@ -19,13 +31,28 @@
       "name": "authfs_device_test_src_lib"
     },
     {
+      "name": "bluetooth_with_facades.test"
+    },
+    {
       "name": "doh_unit_test"
     },
     {
       "name": "futures-util_test_src_lib"
     },
     {
-      "name": "virtualizationservice_device_test"
+      "name": "keystore2_legacy_blobs_test"
+    },
+    {
+      "name": "keystore2_test"
+    },
+    {
+      "name": "legacykeystore_test"
+    },
+    {
+      "name": "libpvmfw_avb.integration_test"
+    },
+    {
+      "name": "virtualizationmanager_device_test"
     }
   ],
   "presubmit-rust": [
@@ -36,13 +63,28 @@
       "name": "authfs_device_test_src_lib"
     },
     {
+      "name": "bluetooth_with_facades.test"
+    },
+    {
       "name": "doh_unit_test"
     },
     {
       "name": "futures-util_test_src_lib"
     },
     {
-      "name": "virtualizationservice_device_test"
+      "name": "keystore2_legacy_blobs_test"
+    },
+    {
+      "name": "keystore2_test"
+    },
+    {
+      "name": "legacykeystore_test"
+    },
+    {
+      "name": "libpvmfw_avb.integration_test"
+    },
+    {
+      "name": "virtualizationmanager_device_test"
     }
   ]
 }
