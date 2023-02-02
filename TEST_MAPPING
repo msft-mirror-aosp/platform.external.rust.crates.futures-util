@@ -21,70 +21,34 @@
     },
     {
       "path": "external/rust/crates/tokio-test"
+    },
+    {
+      "path": "packages/modules/DnsResolver"
+    },
+    {
+      "path": "packages/modules/Virtualization/authfs"
+    },
+    {
+      "path": "packages/modules/Virtualization/virtualizationmanager"
+    },
+    {
+      "path": "packages/modules/Virtualization/zipfuse"
+    },
+    {
+      "path": "system/security/keystore2"
+    },
+    {
+      "path": "system/security/keystore2/legacykeystore"
     }
   ],
   "presubmit": [
     {
-      "name": "ZipFuseTest"
-    },
-    {
-      "name": "authfs_device_test_src_lib"
-    },
-    {
-      "name": "bluetooth_with_facades.test"
-    },
-    {
-      "name": "doh_unit_test"
-    },
-    {
       "name": "futures-util_test_src_lib"
-    },
-    {
-      "name": "keystore2_legacy_blobs_test"
-    },
-    {
-      "name": "keystore2_test"
-    },
-    {
-      "name": "legacykeystore_test"
-    },
-    {
-      "name": "libpvmfw_avb.integration_test"
-    },
-    {
-      "name": "virtualizationmanager_device_test"
     }
   ],
   "presubmit-rust": [
     {
-      "name": "ZipFuseTest"
-    },
-    {
-      "name": "authfs_device_test_src_lib"
-    },
-    {
-      "name": "bluetooth_with_facades.test"
-    },
-    {
-      "name": "doh_unit_test"
-    },
-    {
       "name": "futures-util_test_src_lib"
-    },
-    {
-      "name": "keystore2_legacy_blobs_test"
-    },
-    {
-      "name": "keystore2_test"
-    },
-    {
-      "name": "legacykeystore_test"
-    },
-    {
-      "name": "libpvmfw_avb.integration_test"
-    },
-    {
-      "name": "virtualizationmanager_device_test"
     }
   ]
 }
